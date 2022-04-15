@@ -2,7 +2,7 @@ from CodeAnalyzer import CodeAnalyzer
 
 
 def analyze():
-    path = input()
+    path = "test_code.py"
     analyzer = CodeAnalyzer(path)
     analyzer.analyze()
 

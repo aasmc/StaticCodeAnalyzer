@@ -53,3 +53,64 @@ Here is the expected output for the given example:
 Line 3: S001 Too long
 Line 5: S001 Too long
 ```
+
+## Stage 2
+### Description
+
+Let's add a few more checks to the program. All of them are consistent with the PEP8 style guide.
+### Objectives
+
+In this stage, you need to add checks for the following five errors to your program:
+
+- [S002] Indentation is not a multiple of four;
+- [S003] Unnecessary semicolon after a statement (note that semicolons are acceptable in comments);
+- [S004] Less than two spaces before inline comments;
+- [S005] TODO found (in comments only and case-insensitive);
+- [S006] More than two blank lines preceding a code line (applies to the first non-empty line).
+
+Please note that:
+
+- if a line contains the same stylistic issue several times, your program should print the information only once. However, if a single line has several issues with different types of error codes, they should be printed as a sorted list.
+- To simplify the task, we consider it acceptable if your program finds some false-positive stylistic issues in strings, especially in multi-lines ('''...''' and """...""").
+- We recommend that you break your code into a set of functions to avoid confusion.
+
+Once again:
+
+- The path to the file with Python code is obtained from standard input.
+- The general output format is:
+```text
+    Line X: Code Message
+```
+- The lines with found issues must be output in ascending order.
+
+### Examples
+Here is an example of badly styled Python code (please never write code like this!):
+```python
+print('What\'s your name?') # reading an input
+name = input();
+print(f'Hello, {name}');  # here is an obvious comment: this prints a greeting with a name
+
+
+very_big_number = 11_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000
+print(very_big_number)
+
+
+
+def some_fun():
+    print('NO TODO HERE;;')
+    pass; # Todo something
+```
+
+It contains nine code style issues:
+```text
+Line 1: S004 At least two spaces required before inline comments
+Line 2: S003 Unnecessary semicolon
+Line 3: S001 Too long
+Line 3: S003 Unnecessary semicolon
+Line 6: S001 Too long
+Line 11: S006 More than two blank lines used before this line
+Line 13: S003 Unnecessary semicolon
+Line 13: S004 At least two spaces required before inline comments
+Line 13: S005 TODO found
+```
+
