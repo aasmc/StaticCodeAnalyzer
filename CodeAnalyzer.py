@@ -4,6 +4,9 @@ from Exceptions import SemicolonException
 from Exceptions import LessThanTwoSpacesException
 from Exceptions import TodoFoundException
 from Exceptions import MoreThanTwoBlankLinesException
+from pathlib import Path
+import os
+import re
 
 
 def check_for_long_line(line, line_number):
@@ -14,34 +17,17 @@ def check_for_long_line(line, line_number):
 
 
 def check_for_indentation(line, line_number):
-    indentation = len(line) - len(line.lstrip())
-    if 0 < indentation < 4 or indentation % 4 != 0:
+    indents_reg = re.compile(r'^\s+')
+    indents = indents_reg.search(line)
+    if indents is not None and len(indents[0]) % 4 != 0:
         return IndentationException(line_number)
     else:
         return None
 
 
 def check_for_semicolons(line, line_num):
-    semi_colon_last_index = line.rfind(";")
-    if semi_colon_last_index != -1:
-        quote_first_idx = line.find('"')
-        while quote_first_idx != -1:
-            quote_last_index = line.find('"', quote_first_idx + 1)
-            if quote_first_idx < semi_colon_last_index < quote_last_index:
-                return None
-            quote_first_idx = line.find('"', quote_last_index + 1)
-        quote_first_idx = line.find("'")
-        while quote_first_idx != -1:
-            quote_last_index = line.find("'", quote_first_idx + 1)
-            if quote_first_idx < semi_colon_last_index < quote_last_index:
-                return None
-            quote_first_idx = line.find("'", quote_last_index + 1)
-        comment_idx = line.find("#")
-        if comment_idx != -1:
-            if semi_colon_last_index < comment_idx:
-                return SemicolonException(line_num)
-        else:
-            return SemicolonException(line_num)
+    if (";" in line) and (re.search(r'#.*;|[\'\"].*;.*[\'\"]', line) is None):
+        return SemicolonException(line_num)
     else:
         return None
 
@@ -65,31 +51,42 @@ def check_for_todo(line, line_num):
     return None
 
 
-class CodeAnalyzer:
-    def __init__(self, path_to_file):
-        self.path_to_file = path_to_file
-
-    def analyze(self):
-        line_counter = 0
-        blank_lines_counter = 0
-        exceptions = []
-        with open(self.path_to_file, 'r') as program_file:
-            for line in program_file:
-                line_counter += 1
-                if line.strip():
-                    exceptions.append(check_for_long_line(line, line_counter))
-                    exceptions.append(check_for_indentation(line, line_counter))
-                    exceptions.append(check_for_semicolons(line, line_counter))
-                    exceptions.append(check_for_spaces_before_comments(line, line_counter))
-                    exceptions.append(check_for_todo(line, line_counter))
-                    if blank_lines_counter > 2:
-                        exceptions.append(MoreThanTwoBlankLinesException(line_counter))
-                    blank_lines_counter = 0
-                else:
-                    blank_lines_counter += 1
-        filtered = filter(lambda ex: ex, exceptions)
-        for e in filtered:
-            print(e)
+def analyze_file(path):
+    line_counter = 0
+    blank_lines_counter = 0
+    exceptions = []
+    with open(path, 'r') as program_file:
+        for line in program_file:
+            line_counter += 1
+            if line.strip():
+                exceptions.append(check_for_long_line(line, line_counter))
+                exceptions.append(check_for_indentation(line, line_counter))
+                exceptions.append(check_for_semicolons(line, line_counter))
+                exceptions.append(check_for_spaces_before_comments(line, line_counter))
+                exceptions.append(check_for_todo(line, line_counter))
+                if blank_lines_counter > 2:
+                    exceptions.append(MoreThanTwoBlankLinesException(line_counter))
+                blank_lines_counter = 0
+            else:
+                blank_lines_counter += 1
+    filtered = filter(lambda ex: ex, exceptions)
+    for e in filtered:
+        print(f"{path}:", e)
 
 
+def analyze_dir(path):
+    files_to_analyze = []
+    analyze_dir_recursive(path, files_to_analyze)
+    for f in sorted(files_to_analyze):
+        analyze_file(f)
+
+
+def analyze_dir_recursive(path, files_to_analyze):
+    entries = Path(path)
+    for entry in entries.iterdir():
+        new_path = os.path.join(path, entry.name)
+        if entry.is_file():
+            files_to_analyze.append(new_path)
+        else:
+            analyze_dir_recursive(new_path, files_to_analyze)
 
