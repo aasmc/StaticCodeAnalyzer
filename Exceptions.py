@@ -56,3 +56,30 @@ class MoreThanTwoBlankLinesException(AnalyzerException):
             err_code="S006",
             err_msg="More than two blank lines used before this line"
         )
+
+
+class ConstructionFormatException(AnalyzerException):
+    def __init__(self, line_num, constr_type):
+        super().__init__(
+            line_num=line_num,
+            err_code="S007",
+            err_msg=f"Too many spaces after '{constr_type}'"
+        )
+
+
+class ClassNameFormatException(AnalyzerException):
+    def __init__(self, line_num, class_name):
+        super().__init__(
+            line_num=line_num,
+            err_code="S008",
+            err_msg=f"Class name '{class_name}' should use CamelCase"
+        )
+
+
+class FunctionNameFormatException(AnalyzerException):
+    def __init__(self, line_num, func_name):
+        super().__init__(
+            line_num=line_num,
+            err_code="S009",
+            err_msg=f"Function name '{func_name}' should use snake_case"
+        )

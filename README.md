@@ -173,3 +173,80 @@ Useful links
 - https://realpython.com/working-with-files-in-python/
 - https://dbader.org/blog/python-generator-expressions
 - https://realpython.com/python-pathlib/
+
+## Stage 4
+### Description
+
+As many coders say, naming is one of the hardest things in programming. Good naming makes your code more readable and uniform. Names should also follow style guides. In Python, the basic requirement is using snake_case for function names and CamelCase for class names. Also, there should be only one space between the construction name and the object name. Checking these rules is the next feature that we need to implement.
+
+Check out the Python tutorial about regular expressions: they will help you implement the checks.
+### Objectives
+
+In this stage, we need to add three new checks to the program:
+
+- [S007] Too many spaces after construction_name (def or class);
+
+- [S008] Class name class_name should be written in CamelCase;
+
+- [S009] Function name function_name should be written in snake_case.
+
+Note that:
+- Functions names may start or end with underscores (__fun, __init__).
+- To simplify the task, we will assume that classes are always written as in the following examples:
+```python
+# a simple class
+class MyClass:
+    pass
+
+# a class based on inheritance
+class MyClass(AnotherClass):
+    pass
+```
+In reality, it's possible to declare a class this way:
+```python
+class \
+        S:
+    pass
+```
+
+However, since it is not a common way to declare classes, you can ignore it.
+
+- Another assumption is that functions are always declared like this:
+```python
+def do_magic():
+    pass
+```
+
+As before:
+- The program obtains the path to the file or directory via command-line arguments:
+```text
+> python code_analyzer.py directory-or-file
+```
+- All the previously implemented checks should continue to work properly.
+
+### Examples:
+
+```python
+class  Person:
+    pass
+
+class user:
+
+    def __init__(self, login: str, password: str):
+        self.login = login
+        self.password = password
+
+    @staticmethod
+    def _print1():
+        print('q')
+
+    @staticmethod
+    def Print2():
+        print('q')
+```
+
+```text
+/path/to/file/script.py: Line 1: S007 Too many spaces after 'class'
+/path/to/file/script.py: Line 4: S008 Class name 'user' should use CamelCase
+/path/to/file/script.py: Line 15: S009 Function name 'Print2' should use snake_case
+```

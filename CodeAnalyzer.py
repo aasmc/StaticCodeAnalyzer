@@ -4,6 +4,9 @@ from Exceptions import SemicolonException
 from Exceptions import LessThanTwoSpacesException
 from Exceptions import TodoFoundException
 from Exceptions import MoreThanTwoBlankLinesException
+from Exceptions import ConstructionFormatException
+from Exceptions import FunctionNameFormatException
+from Exceptions import ClassNameFormatException
 from pathlib import Path
 import os
 import re
@@ -51,6 +54,49 @@ def check_for_todo(line, line_num):
     return None
 
 
+def check_for_spaces_after_construction(line, line_num):
+    class_regex = re.compile(r'class [^\s]+')
+    func_regex = re.compile(r'def [^\s]+')
+    if "class" in line and class_regex.search(line) is None:
+        return ConstructionFormatException(line_num, "class")
+    elif "def" in line and func_regex.search(line) is None:
+        return ConstructionFormatException(line_num, "def")
+    else:
+        return None
+
+
+def check_for_class_name_format(line, line_num):
+    if "class" in line:
+        class_name_regex = re.compile(r'class\s+([A-Z][a-z0-9]+)+')
+        if class_name_regex.search(line) is None:
+            class_idx = line.find("class")
+            class_name = line[class_idx + len("class"):].lstrip()
+            space_idx = class_name.find(":")
+            if space_idx != -1:
+                class_name = class_name[:space_idx]
+            return ClassNameFormatException(line_num, class_name)
+        else:
+            return None
+    else:
+        return None
+
+
+def check_for_func_name_format(line, line_num):
+    if "def" in line:
+        func_idx = line.find("def")
+        func_name = line[func_idx + len("def"):].lstrip()
+        bracket_idx = func_name.find("(")
+        if bracket_idx != -1:
+            func_name = func_name[:bracket_idx]
+        func_name_regex = re.compile(r'^_{,2}[a-z][a-z0-9_]+_{,2}?$')
+        if func_name_regex.match(func_name) is None:
+            return FunctionNameFormatException(line_num, func_name)
+        else:
+            return None
+    else:
+        return None
+
+
 def analyze_file(path):
     line_counter = 0
     blank_lines_counter = 0
@@ -67,6 +113,9 @@ def analyze_file(path):
                 if blank_lines_counter > 2:
                     exceptions.append(MoreThanTwoBlankLinesException(line_counter))
                 blank_lines_counter = 0
+                exceptions.append(check_for_spaces_after_construction(line, line_counter))
+                exceptions.append(check_for_class_name_format(line, line_counter))
+                exceptions.append(check_for_func_name_format(line, line_counter))
             else:
                 blank_lines_counter += 1
     filtered = filter(lambda ex: ex, exceptions)
@@ -89,4 +138,3 @@ def analyze_dir_recursive(path, files_to_analyze):
             files_to_analyze.append(new_path)
         else:
             analyze_dir_recursive(new_path, files_to_analyze)
-
