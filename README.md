@@ -250,3 +250,85 @@ class user:
 /path/to/file/script.py: Line 4: S008 Class name 'user' should use CamelCase
 /path/to/file/script.py: Line 15: S009 Function name 'Print2' should use snake_case
 ```
+
+## Stage 5
+Theory
+
+In this stage, it is preferable to make use of the ast module (Abstract Syntactic Tree). If you feel that you need to know more about it, here are two tutorials that can help you work with it:
+
+- A short tutorial: How to use AST to understand code https://www.mattlayman.com/blog/2018/decipher-python-ast/
+- A long tutorial that complements the standard documentation https://greentreesnakes.readthedocs.io/en/latest/
+
+ast module also contains many classes that represent different elements of Python's syntax. For example, the class FunctionDef is a node of the tree representing a definition of some function in the code, the class arguments represents function's arguments, the class Assign represents an expression where a value gets assigned to some variable. You can use all these (and other) classes to find places of the code (names of the variables and so on) that you want to check for correctness:
+```python
+for node in ast.walk(tree):
+    if isinstance(node, ast.FunctionDef):
+        function_name = node.name
+        # check whether the function's name is written in camel_case
+        pass
+```
+Don't be shy to check some other classes and functions of this module to feel confident while using it. 
+### Description
+
+In this final stage, you need to improve your program to check that all the names of function arguments as well as local variables meet the requirements of PEP8. The program must not force the names of variables outside of functions (for example, in modules or classes). The most convenient way to do this is to use the Abstract Syntactic Tree (AST) from the ast module.
+
+Also, your program must check that the given code does not use mutable values (lists, dictionaries, and sets) as default arguments to avoid errors in the program.
+### Objectives
+
+You need to add three new checks to your analyzer:
+
+- [S010] Argument name arg_name should be written in snake_case;
+- [S011] Variable var_name should be written in snake_case;
+- [S012] The default argument value is mutable.
+
+Please note that:
+
+- Names of functions, as well as names of variables in the body of a function should be written in snake_case. However, the error message for an invalid function name should be output only when the function is defined. The error message for an invalid variable name should be output only when this variable is assigned a value, not when this variable is used further in the code.
+- To simplify the task, you only need to check whether the mutable value is directly assigned to an argument:
+```python
+def fun1(test=[]):  # default argument value is mutable
+    pass
+
+
+def fun2(test=get_value()):  # you can skip this case to simplify the problem
+    pass
+```
+
+- If a function contains several mutable arguments, the message should be output only once for this function.
+- Variable and argument names are assumed to be valid if they are written in snake_case. Initial underscores (_) are also acceptable.
+
+As before:
+
+- You can use other messages, but the check codes must be exactly as given above.
+- All the previously implemented checks should continue to work correctly, and the program should be able to read from one or more files.
+
+### Examples
+```python
+CONSTANT = 10
+names = ['John', 'Lora', 'Paul']
+
+
+def fun1(S=5, test=[]):  # default argument value is mutable
+    VARIABLE = 10
+    string = 'string'
+    print(VARIABLE)
+```
+The expected output for this code is:
+```text
+/path/to/file/script.py: Line 5: S010 Argument name 'S' should be snake_case
+/path/to/file/script.py: Line 5: S012 Default argument value is mutable
+/path/to/file/script.py: Line 6: S011 Variable 'VARIABLE' in function should be snake_case
+```
+
+Note that the message for the line print(VARIABLE) is not printed since it was already output for line 6, where the variable VARIABLE is assigned a value.
+### Extra
+You can also use AST to rewrite some of the checks implemented before. It would be especially convenient for checking the names of functions and classes.
+
+If you would like to continue improving this project, you can also:
+
+- implement all of the standard PEP8 checks;
+- display column numbers;
+- disable some of the checks via command-line arguments.
+
+
+

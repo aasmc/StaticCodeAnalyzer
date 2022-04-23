@@ -83,3 +83,30 @@ class FunctionNameFormatException(AnalyzerException):
             err_code="S009",
             err_msg=f"Function name '{func_name}' should use snake_case"
         )
+
+
+class ArgumentNameFormatException(AnalyzerException):
+    def __init__(self, line_num, arg_name):
+        super().__init__(
+            line_num=line_num,
+            err_code="S010",
+            err_msg=f"Argument name '{arg_name}' should be snake_case"
+        )
+
+
+class VariableFormatException(AnalyzerException):
+    def __init__(self, line_num, var_name):
+        super().__init__(
+            line_num=line_num,
+            err_code="S011",
+            err_msg=f"Variable '{var_name}' in function should be snake_case"
+        )
+
+
+class MutableArgumentException(AnalyzerException):
+    def __init__(self, line_num):
+        super().__init__(
+            line_num=line_num,
+            err_code="S012",
+            err_msg=f"Default argument value is mutable"
+        )
